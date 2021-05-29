@@ -1,0 +1,7 @@
+{
+  # Decay rate in percents.
+  "monthlyDecayRate":1,
+  # Reputation will not decay below 75 positive or negative.
+  "repThresholdCooperative":true,
+  "repThresholdVengeful":true
+}

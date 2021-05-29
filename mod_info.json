@@ -1,0 +1,10 @@
+{
+    "id":"repdec",
+    "name":"Reputation Decay",
+    "author":"SCC",
+    "version":"2",
+    "description":"Reputation will slowly decay towards 0.",
+    "gameVersion":"0.95a-RC15",
+    "jars":["jars/repdec.jar"],
+    "modPlugin":"repdec.ReputationDecayPlugin"
+}

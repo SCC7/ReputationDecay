@@ -6,18 +6,37 @@ import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.campaign.RepLevel;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 
 public class ReputationDecayMonthly implements EconomyTickListener {
-    float decay = 0.01f;
+    int decayInPercents = 1;
+    float decay;
     boolean repThresholdCooperative = true;
     boolean repThresholdVengeful = true;
-    float safetyMargin = 0.01f;
+    //float safetyMargin = 0.01f;
 
     public static Logger log = Global.getLogger(ReputationDecayMonthly.class);
 
-    public ReputationDecayMonthly() {
+
+
+    public ReputationDecayMonthly() throws IOException, JSONException {
         Global.getSector().getListenerManager().addListener(this, true);
+
+        try {
+            JSONObject settings = Global.getSettings().getMergedJSONForMod("repdecSettings.json", "repdec");
+            repThresholdVengeful = settings.optBoolean("repThresholdVengeful", repThresholdVengeful);
+            repThresholdCooperative = settings.optBoolean("repThresholdVengeful", repThresholdCooperative);
+            decayInPercents = settings.optInt("monthlyDecayRate", decayInPercents);
+            decay = (float) decayInPercents/100;
+        }
+        catch(Exception e)
+        {
+            throw new RuntimeException("Reputation Decay: failed to load config: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -27,23 +46,28 @@ public class ReputationDecayMonthly implements EconomyTickListener {
     public void reportEconomyMonthEnd() {
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
             if (repThresholdCooperative) {
-                if(faction.getRelationship(Factions.PLAYER) > RepLevel.COOPERATIVE.getMin()
-                && faction.getRelationship(Factions.PLAYER) < (RepLevel.COOPERATIVE.getMin() + safetyMargin)) {
-                    faction.setRelationship(Factions.PLAYER, RepLevel.COOPERATIVE.getMin());
-                    //log.info("-+= REPUTATION DECAY DEBUG, RepLevel.COOPERATIVE.getMin() is" + RepLevel.COOPERATIVE.getMin());
+                if(faction.getRelationship(Factions.PLAYER) >= RepLevel.COOPERATIVE.getMin() + 0.01f
+                && faction.getRelationship(Factions.PLAYER) <= (RepLevel.COOPERATIVE.getMin() + decay)) {
+                    faction.setRelationship(Factions.PLAYER, RepLevel.COOPERATIVE.getMin() + 0.01f);
                   continue;
                 }
             }
             if (repThresholdVengeful) {
-                if(faction.getRelationship(Factions.PLAYER) < RepLevel.VENGEFUL.getMin()
-                && faction.getRelationship(Factions.PLAYER) > (RepLevel.VENGEFUL.getMin() + safetyMargin)) {
-                    faction.setRelationship(Factions.PLAYER, RepLevel.VENGEFUL.getMin());
-                    //log.info("-+= REPUTATION DECAY DEBUG, RepLevel.COOPERATIVE.getMin() is" + RepLevel.COOPERATIVE.getMin());
+                if(faction.getRelationship(Factions.PLAYER) <= RepLevel.VENGEFUL.getMin() + 0.01f
+                && faction.getRelationship(Factions.PLAYER) >= (RepLevel.VENGEFUL.getMin() + decay)) {
+                    faction.setRelationship(Factions.PLAYER, RepLevel.VENGEFUL.getMin() + 0.01f);
                     continue;
                 }
             }
-            if (faction.getRelationship(Factions.PLAYER)>0) faction.adjustRelationship(Factions.PLAYER, -decay);
-            if (faction.getRelationship(Factions.PLAYER)<0) faction.adjustRelationship(Factions.PLAYER, decay);
+            if (faction.getRelationship(Factions.PLAYER) > decay) {
+                faction.adjustRelationship(Factions.PLAYER, -decay);
+                continue;
+            }
+            if (faction.getRelationship(Factions.PLAYER) < -decay) {
+                faction.adjustRelationship(Factions.PLAYER, decay);
+                continue;
+            }
+            faction.setRelationship(Factions.PLAYER, 0);
         }
     }
 }

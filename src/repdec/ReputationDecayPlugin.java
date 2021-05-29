@@ -1,6 +1,9 @@
 package repdec;
 
 import com.fs.starfarer.api.BaseModPlugin;
+import org.json.JSONException;
+
+import java.io.IOException;
 
 public class ReputationDecayPlugin extends BaseModPlugin {
     @Override
@@ -10,7 +13,11 @@ public class ReputationDecayPlugin extends BaseModPlugin {
 
     @Override
     public void onGameLoad(boolean newGame) {
-        new ReputationDecayMonthly();
+        try {
+            new ReputationDecayMonthly();
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 }

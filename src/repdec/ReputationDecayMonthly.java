@@ -72,7 +72,8 @@ public class ReputationDecayMonthly implements EconomyTickListener {
                 }
                 faction.setRelationship(Factions.PLAYER, 0);
             }
-            reputationLastMonth = faction.getRelationship(Factions.PLAYER);
+            if(faction.getRelationship(Factions.PLAYER)>0) reputationLastMonth = faction.getRelationship(Factions.PLAYER) - decay;
+            else reputationLastMonth = faction.getRelationship(Factions.PLAYER) + decay;
             hasRepChangedSinceLastMonth = false;
         }
     }

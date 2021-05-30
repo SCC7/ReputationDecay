@@ -14,7 +14,7 @@ import java.util.Map;
 
 
 public class ReputationDecayMonthly implements EconomyTickListener {
-    int decayInPercents = 1;
+    double decayInPercents = 1;
     float decay;
     boolean repThresholdCooperative = true;
     boolean repThresholdVengeful = true;
@@ -33,7 +33,7 @@ public class ReputationDecayMonthly implements EconomyTickListener {
             JSONObject settings = Global.getSettings().getMergedJSONForMod("repdecSettings.json", "repdec");
             repThresholdVengeful = settings.optBoolean("repThresholdVengeful", repThresholdVengeful);
             repThresholdCooperative = settings.optBoolean("repThresholdVengeful", repThresholdCooperative);
-            decayInPercents = settings.optInt("monthlyDecayRate", decayInPercents);
+            decayInPercents = settings.optDouble("monthlyDecayRate", decayInPercents);
             decay = (float) decayInPercents/100;
             for (FactionAPI faction : Global.getSector().getAllFactions()) {
                 reputationLastMonth.put(faction.getId(), faction.getRelationship(Factions.PLAYER));

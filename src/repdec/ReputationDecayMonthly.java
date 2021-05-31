@@ -6,7 +6,6 @@ import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.campaign.RepLevel;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -52,7 +51,10 @@ public class ReputationDecayMonthly implements EconomyTickListener {
             repThresholdCooperative = settings.optBoolean("repThresholdVengeful", repThresholdCooperative);
 
             factionSettings = dataFromCsv.getDataFromCsv(Global.getSettings().getMergedSpreadsheetDataForMod("faction", "data/config/repdec/factionRepdecSettings.csv", "repdec"));
-        factionData tempData = new factionData("",0,0);
+        for (factionData factionSetting : factionSettings) {
+            log.info("PRE DEFAULTS Faction: " + factionSetting.getFaction() + ", decay rate: " + factionSetting.getDecayRate() + ", equilibrium point: " + factionSetting.getEquilibrium());
+        }
+        factionData tempData;
         try {
             //pirateAndPatherDecayToHostile = settings.optBoolean("pirateAndPatherDecayToHostile", pirateAndPatherDecayToHostile);
             //decayInPercents = settings.optDouble("monthlyDecayRate", decayInPercents);
@@ -66,11 +68,13 @@ public class ReputationDecayMonthly implements EconomyTickListener {
                     if (factionSetting.getFaction().equals(faction.getId())) factionFound = true;
                 }
                 if (!factionFound) {
-                    tempData.writeFaction(faction.getId());
+                    /*tempData.writeFaction(faction.getId());
                     tempData.writeDecayRate(defaultDecay);
-                    tempData.writeEquilibrium(defaultDecay);
+                    tempData.writeEquilibrium(defaultDecay);*/
+                    tempData = new factionData(faction.getId(), defaultDecay, defaultDecay);
                     factionSettings.add(tempData);
                 }
+                factionFound = false;
                 //factionList.add(i, faction.getId());
                 //hasRepChangedSinceLastMonth.put(faction.getId(), Boolean.TRUE);
             }
@@ -82,7 +86,7 @@ public class ReputationDecayMonthly implements EconomyTickListener {
             throw new RuntimeException("Reputation Decay: failed to load config: " + e.getMessage(), e);
         }
         for (factionData factionSetting : factionSettings) {
-            log.info("Faction: " + factionSetting.getFaction() + ", decay rate: " + factionSetting.getDecayRate() + ", equilibrium point: " + factionSetting.getEquilibrium());
+            log.info("DEFAULTS Faction: " + factionSetting.getFaction() + ", decay rate: " + factionSetting.getDecayRate() + ", equilibrium point: " + factionSetting.getEquilibrium());
         }
     }
 
@@ -92,9 +96,9 @@ public class ReputationDecayMonthly implements EconomyTickListener {
     @Override
     public void reportEconomyMonthEnd() {
         for (FactionAPI faction : Global.getSector().getAllFactions()) {
-            if(reputationLastMonth.get(faction.getId()).equals(faction.getRelationship(Factions.PLAYER))) {
-                decayTo(faction);
-            }
+            //if(reputationLastMonth.get(faction.getId()) == faction.getRelationship(Factions.PLAYER)) {
+                decayRep(faction);
+            //}
             int index = 0;
             for (int i=0; i<factionSettings.size(); i++) {
                 if(factionSettings.get(i).getFaction().equals(faction.getId())) {
@@ -110,19 +114,19 @@ public class ReputationDecayMonthly implements EconomyTickListener {
             //log.info(factionSettings);
         }
     }
-    void decayTo(FactionAPI faction) {
+    void decayRep(FactionAPI faction) {
         //if(faction.getId().equals(Factions.PLAYER)) return;
         //if(decay == 0) return;
         int index=0;
         for (int i=0; i<factionSettings.size(); i++) {
-            if(factionSettings.get(i).getDecayRate()==0) return;
             if(factionSettings.get(i).getFaction().equals(faction.getId())) {
+                if(factionSettings.get(i).getDecayRate()==0) return;
                 index=i;
                 break;
             }
         }
         float decay = factionSettings.get(index).getDecayRate() / 100;
-        float equilibrium = factionSettings.get(index).getEquilibrium();
+        float equilibrium = factionSettings.get(index).getEquilibrium() / 100;
 
         if (repThresholdCooperative) {
             if(faction.getRelationship(Factions.PLAYER) >= RepLevel.COOPERATIVE.getMin() + 0.01f
@@ -142,7 +146,7 @@ public class ReputationDecayMonthly implements EconomyTickListener {
             faction.adjustRelationship(Factions.PLAYER, -decay);
             return;
         }
-        if (faction.getRelationship(Factions.PLAYER) < (equilibrium -  decay)) {
+        if (faction.getRelationship(Factions.PLAYER) < (equilibrium - decay)) {
             faction.adjustRelationship(Factions.PLAYER, decay);
             return;
         }

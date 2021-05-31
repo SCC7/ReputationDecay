@@ -13,7 +13,7 @@ public class dataFromCsv {
         //ArrayList<String> givenFaction = new ArrayList<String>();
         //List<Float> tempList = null;
         ArrayList<factionData> factionSettings = new ArrayList<factionData>(); //ArrayList is precious
-        factionData tempData = null;
+        factionData tempData = new factionData("",0,0);
 
         for (int i=0; i<file.length(); i++) {
             JSONObject row = file.getJSONObject(i);
@@ -26,10 +26,10 @@ public class dataFromCsv {
         }
         return factionSettings;
     }
-    public static Boolean checkIfPresent(ArrayList<factionData> factionSettings, String faction) {
+    /*public static Boolean checkIfPresent(ArrayList<factionData> factionSettings, String faction) {
         for (int i = 0; i< Global.getSector().getAllFactions().size(); i++) {
             if(factionSettings.get(i).getFaction().equals(faction)) return true;
         }
         return false;
-    }
+    }*/
 }

@@ -4,10 +4,10 @@ faction,equilibrium,decayRate
 #decayRate = monthly decay rate (default 1)
 #standard values are 0 and 0, which means no decay at all
 independent,0,1
-pirates,-50,1
+pirates,-50,50
 persean,0,1
 tritachyon,0,1
 hegemony,0,1
-sindrian_diktat,0,1
-luddic_church,0,1
-luddic_path,-50,1
+sindrian_diktat,-10,1
+luddic_church,10,10
+luddic_path,-50,20

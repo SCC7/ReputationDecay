@@ -46,23 +46,26 @@ public class ReputationDecayMonthly implements EconomyTickListener {
         Global.getSector().getListenerManager().addListener(this, true);
 
 
-            int i = 0;
+            //int i = 0;
             JSONObject settings = Global.getSettings().getMergedJSONForMod("repdecSettings.json", "repdec");
             repThresholdVengeful = settings.optBoolean("repThresholdVengeful", repThresholdVengeful);
             repThresholdCooperative = settings.optBoolean("repThresholdVengeful", repThresholdCooperative);
 
             factionSettings = dataFromCsv.getDataFromCsv(Global.getSettings().getMergedSpreadsheetDataForMod("faction", "data/config/repdec/factionRepdecSettings.csv", "repdec"));
-            factionData tempData = null;
+        factionData tempData = new factionData("",0,0);
         try {
             //pirateAndPatherDecayToHostile = settings.optBoolean("pirateAndPatherDecayToHostile", pirateAndPatherDecayToHostile);
             //decayInPercents = settings.optDouble("monthlyDecayRate", decayInPercents);
             //decay = (float) decayInPercents/100;
             //if(!settings.optBoolean("pirateAndPatherDecayToHostile")) pirateFactions.clear();
             //new dataFromCsv();
-
+            boolean factionFound = false;
             for (FactionAPI faction : Global.getSector().getAllFactions()) {
                 reputationLastMonth.put(faction.getId(), faction.getRelationship(Factions.PLAYER));
-                if(!dataFromCsv.checkIfPresent(factionSettings, faction.getId())) {
+                for (factionData factionSetting : factionSettings) {
+                    if (factionSetting.getFaction().equals(faction.getId())) factionFound = true;
+                }
+                if (!factionFound) {
                     tempData.writeFaction(faction.getId());
                     tempData.writeDecayRate(defaultDecay);
                     tempData.writeEquilibrium(defaultDecay);
@@ -77,6 +80,9 @@ public class ReputationDecayMonthly implements EconomyTickListener {
         catch(Exception e)
         {
             throw new RuntimeException("Reputation Decay: failed to load config: " + e.getMessage(), e);
+        }
+        for (factionData factionSetting : factionSettings) {
+            log.info("Faction: " + factionSetting.getFaction() + ", decay rate: " + factionSetting.getDecayRate() + ", equilibrium point: " + factionSetting.getEquilibrium());
         }
     }
 
@@ -142,4 +148,10 @@ public class ReputationDecayMonthly implements EconomyTickListener {
         }
         faction.setRelationship(Factions.PLAYER, equilibrium);
     }
+    /*void getRel(FactionAPI faction) {
+        faction.getRelationship(Factions.PLAYER);
+    }
+    void setRel (FactionAPI faction, float value) {
+        faction.setRelationship(Factions.PLAYER, value);
+    }*/
 }

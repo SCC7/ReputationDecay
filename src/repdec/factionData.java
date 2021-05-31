@@ -2,10 +2,7 @@ package repdec;
 
 import com.fs.starfarer.api.Global;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class factionData {
     String faction;
@@ -17,6 +14,12 @@ public class factionData {
         this.equilibrium = equilibrium;
         this.decayRate = decayRate;
     }
+    /*public Boolean checkIfPresent(ArrayList<factionData> factionSettings, String faction) {
+        for (int i = 0; i< Global.getSector().getAllFactions().size(); i++) {
+            if(factionSettings.get(i).getFaction().equals(faction)) return true;
+        }
+        return false;
+    }*/
 
 
     void writeFaction (String faction) {

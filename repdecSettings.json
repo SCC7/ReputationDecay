@@ -1,7 +1,9 @@
 {
   # Decay rate in percents.
-  "monthlyDecayRate":1,
+  #"monthlyDecayRate":1,
   # Reputation will not decay below 75 positive or negative.
   "repThresholdCooperative":true,
-  "repThresholdVengeful":true
+  "repThresholdVengeful":true,
+  # Reputation will decay to 50 for pirates and pathers
+  #"pirateAndPatherDecayToHostile":true
 }

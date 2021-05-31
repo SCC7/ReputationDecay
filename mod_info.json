@@ -2,7 +2,7 @@
     "id":"repdec",
     "name":"Reputation Decay",
     "author":"SCC",
-    "version":"2.1.2",
+    "version":"2.3",
 	"utility": "true",
     "description":"Reputation will slowly decay towards 0.",
     "gameVersion":"0.95a-RC15",

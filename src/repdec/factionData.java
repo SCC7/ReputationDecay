@@ -35,9 +35,9 @@ public class factionData {
         return faction;
     }
     float getEquilibrium() {
-        return equilibrium;
+        return equilibrium/100f;
     }
     float getDecayRate() {
-        return decayRate;
+        return decayRate/100f;
     }
 }
